@@ -1,0 +1,147 @@
+
+# Importando a biblioteca tkinter, que é utilizada para criar interfaces gráficas
+import tkinter as tk
+from tkinter import messagebox
+
+# Função para calcular o IMC (Índice de Massa Corporal)
+def calcular_imc():
+    try:
+        # Obtendo os valores de peso e altura a partir das caixas de entrada
+        peso = float(entry_peso.get())
+        altura = float(entry_altura.get())
+
+        # Verificando se o peso ou altura são negativos ou zero
+        if peso <= 0 or altura <= 0:
+            raise ValueError("Peso e altura devem ser positivos.")
+
+        # Calculando o IMC utilizando a fórmula: IMC = peso / altura²
+        imc = peso / (altura ** 2)
+        label_resultado.config(text=f"IMC: {imc:.2f}")  # Exibindo o resultado do IMC
+
+        # Classificando o IMC em diferentes categorias
+        if imc < 18.5:
+            classificacao = "Abaixo do peso"
+        elif 18.5 <= imc < 24.9:
+            classificacao = "Peso normal"
+        elif 25 <= imc < 29.9:
+            classificacao = "Sobrepeso"
+        elif 30 <= imc < 39.9:
+            classificacao = "Obesidade"
+        else:
+            classificacao = "Obesidade grave"
+
+        # Exibindo a classificação do IMC
+        label_classificacao.config(text=f"Classificação: {classificacao}")
+
+    except ValueError as e:
+        # Caso haja um erro no valor informado (ex.: entrada inválida)
+        messagebox.showerror("Erro", str(e))
+    except Exception:
+        # Exibe mensagem de erro caso haja um outro tipo de exceção
+        messagebox.showerror("Erro", "Entrada inválida! Tente novamente.")
+
+# Função para salvar os dados fornecidos pelo usuário em um arquivo
+def salvar_dados():
+    nome = entry_nome.get()
+    peso = entry_peso.get()
+    altura = entry_altura.get()
+    data = entry_data.get()
+
+    # Verificando se todos os campos foram preenchidos
+    if not nome or not peso or not altura or not data:
+        messagebox.showwarning("Aviso", "Todos os campos precisam ser preenchidos.")
+        return
+
+    # Extraindo o valor do IMC mostrado na interface
+    imc = label_resultado.cget("text").split(":")[1].strip()
+
+    # Abrindo o arquivo e escrevendo os dados coletados
+    with open("dados_imc.txt", "a") as file:
+        file.write(f"{nome}, {peso}, {altura}, {data}, {imc}\n")
+    
+    # Exibindo uma mensagem de sucesso
+    messagebox.showinfo("Sucesso", "Dados salvos com sucesso!")
+
+# Função para abrir uma nova janela com informações sobre o aplicativo
+def abrir_sobre():
+    sobre_window = tk.Toplevel()  # Criando uma nova janela
+    sobre_window.title("Sobre o Aplicativo")  # Título da nova janela
+    
+    # Informações sobre o aplicativo e desenvolvedores
+    info = """
+    Desenvolvedores: Natalia de abreu Silva, Maria das Graças Modesto Barbosa e Lourena Feitosa Barbosa.
+    Disciplina: Programação Orientada a Objetos
+    Professor: Michel da Silva
+    """
+    # Criando e exibindo o texto na nova janela
+    label_sobre = tk.Label(sobre_window, text=info, padx=10, pady=10)
+    label_sobre.pack()
+
+# Função para abrir a janela de cálculo de IMC
+def abrir_calculadora_imc():
+    global entry_nome, entry_peso, entry_altura, entry_data, label_resultado, label_classificacao
+
+    calculadora_window = tk.Toplevel()  # Criando uma nova janela
+    calculadora_window.title("Calculadora de IMC")  # Título da janela de calculadora
+
+    # Criando os campos de entrada e labels para o nome, peso, altura e data
+    tk.Label(calculadora_window, text="Nome:").grid(row=0, column=0)
+    entry_nome = tk.Entry(calculadora_window)
+    entry_nome.grid(row=0, column=1)
+
+    tk.Label(calculadora_window, text="Peso (kg):").grid(row=1, column=0)
+    entry_peso = tk.Entry(calculadora_window)
+    entry_peso.grid(row=1, column=1)
+
+    tk.Label(calculadora_window, text="Altura (m):").grid(row=2, column=0)
+    entry_altura = tk.Entry(calculadora_window)
+    entry_altura.grid(row=2, column=1)
+
+    tk.Label(calculadora_window, text="Data (DD/MM/AAAA):").grid(row=3, column=0)
+    entry_data = tk.Entry(calculadora_window)
+    entry_data.grid(row=3, column=1)
+
+    # Botão para calcular o IMC
+    botao_calcular = tk.Button(calculadora_window, text="Calcular IMC", command=calcular_imc)
+    botao_calcular.grid(row=4, column=0, columnspan=2, pady=10)
+
+    # Labels para exibir o IMC e a classificação
+    label_resultado = tk.Label(calculadora_window, text="IMC: ")
+    label_resultado.grid(row=5, column=0, columnspan=2)
+
+    label_classificacao = tk.Label(calculadora_window, text="Classificação: ")
+    label_classificacao.grid(row=6, column=0, columnspan=2)
+
+    # Botão para salvar os dados calculados
+    botao_salvar = tk.Button(calculadora_window, text="Salvar Dados", command=salvar_dados)
+    botao_salvar.grid(row=7, column=0, columnspan=2, pady=10)
+
+# Função principal para criar a janela inicial e os menus
+def janela_principal():
+    janela = tk.Tk()  # Criando a janela principal
+    janela.title("Aplicativo de IMC")  # Título da janela principal
+
+    menu = tk.Menu(janela)  # Criando o menu da janela
+
+    # Submenu para a calculadora de IMC
+    menu_calculadora = tk.Menu(menu, tearoff=0)
+    menu_calculadora.add_command(label="Abrir", command=abrir_calculadora_imc)
+    menu.add_cascade(label="Calculadora IMC", menu=menu_calculadora)
+
+    # Comando para abrir a janela "Sobre"
+    menu.add_command(label="Sobre", command=abrir_sobre)
+
+    janela.config(menu=menu)  # Configurando o menu na janela
+
+    # Botões da janela principal
+    botao_imc = tk.Button(janela, text="Calculadora IMC", command=abrir_calculadora_imc, padx=20, pady=10)
+    botao_imc.pack(pady=20)
+
+    botao_sobre = tk.Button(janela, text="Sobre", command=abrir_sobre, padx=20, pady=10)
+    botao_sobre.pack(pady=10)
+
+    # Inicia a aplicação
+    janela.mainloop()
+
+# Chama a função principal para iniciar o aplicativo
+janela_principal()
